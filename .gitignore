@@ -25,3 +25,6 @@ chirpy
 
 # project storage
 database.json
+
+# project artifacts
+tmp
