@@ -4,12 +4,20 @@ import "errors"
 
 // User Structs --
 type User struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
+	ID             int    `json:"id"`
+	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password"`
 }
 
+var ErrorUserAlreadyExists = errors.New("User already exists")
+var ErrorUserDoesNotExist = errors.New("User matching that email does not exist")
+
 // User Methods --
-func (db *DB) CreateUser(email string) (User, error) {
+func (db *DB) CreateUser(email, hashedPassword string) (User, error) {
+	if _, err := db.GetUserByEmail(email); !errors.Is(err, ErrorUserDoesNotExist) {
+		return User{}, ErrorUserAlreadyExists
+	}
+
 	dbStructure, err := db.loadDB()
 	if err != nil {
 		return User{}, err
@@ -17,8 +25,9 @@ func (db *DB) CreateUser(email string) (User, error) {
 
 	id := len(dbStructure.Users) + 1
 	user := User{
-		ID:    id,
-		Email: email,
+		ID:             id,
+		Email:          email,
+		HashedPassword: hashedPassword,
 	}
 	dbStructure.Users[id] = user
 
@@ -42,4 +51,19 @@ func (db *DB) GetUser(id int) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (db *DB) GetUserByEmail(email string) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	for _, user := range dbStructure.Users {
+		if user.Email == email {
+			return user, nil
+		}
+	}
+
+	return User{}, ErrorUserDoesNotExist
 }
