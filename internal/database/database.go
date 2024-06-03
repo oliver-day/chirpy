@@ -72,6 +72,14 @@ func (db *DB) ensureDB() error {
 	return err
 }
 
+func (db *DB) ResetDB() error {
+	err := os.Remove(db.path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	return db.ensureDB()
+}
+
 // Functions --
 func NewDB(path string) (*DB, error) {
 	db := &DB{

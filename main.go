@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 	"os"
+	"runtime/debug"
 
 	"github.com/joho/godotenv"
 	"github.com/oday/chirpy/internal/database"
@@ -28,6 +30,15 @@ func main() {
 	db, err := database.NewDB("database.json")
 	if err != nil {
 		log.Fatalf("Failed to create database: %s", err)
+	}
+
+	debug := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
+	if debug != nil && *debug {
+		err := db.ResetDB()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	apiCfg := &apiConfig{
