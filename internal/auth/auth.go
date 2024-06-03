@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -34,4 +35,33 @@ func MakeJWT(userID int, tokenSecret string, expiresIn time.Duration) (string, e
 	})
 
 	return token.SignedString(signingKey)
+}
+
+func ValidateJWT(tokenString, tokenSecret string) (string, error) {
+	claimsStruct := jwt.RegisteredClaims{}
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&claimsStruct,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(tokenSecret), nil
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	userIDString, err := token.Claims.GetSubject()
+	if err != nil {
+		return "", err
+	}
+
+	issuer, err := token.Claims.GetIssuer()
+	if err != nil {
+		return "", err
+	}
+	if issuer != string("chirpy") {
+		return "", errors.New("Invalid issuer")
+	}
+
+	return userIDString, nil
 }
