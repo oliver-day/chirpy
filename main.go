@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime/debug"
 
 	"github.com/joho/godotenv"
 	"github.com/oday/chirpy/internal/database"
