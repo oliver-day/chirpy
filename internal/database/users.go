@@ -10,7 +10,7 @@ type User struct {
 }
 
 var ErrorUserAlreadyExists = errors.New("User already exists")
-var ErrorUserDoesNotExist = errors.New("User matching that email does not exist")
+var ErrorUserDoesNotExist = errors.New("User does not exist")
 
 // User Methods --
 func (db *DB) CreateUser(email, hashedPassword string) (User, error) {

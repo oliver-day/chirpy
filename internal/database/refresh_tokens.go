@@ -30,3 +30,26 @@ func (db *DB) SaveRefreshToken(userID int, token string) error {
 
 	return nil
 }
+
+func (db *DB) GetUserForRefreshToken(token string) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	refreshToken, ok := dbStructure.RefreshTokens[token]
+	if !ok {
+		return User{}, ErrorUserDoesNotExist
+	}
+
+	if refreshToken.ExpiresAt.Before(time.Now()) {
+		return User{}, ErrorUserDoesNotExist
+	}
+
+	user, err := db.GetUser(refreshToken.UserID)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
