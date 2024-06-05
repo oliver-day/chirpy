@@ -7,6 +7,7 @@ type User struct {
 	ID             int    `json:"id"`
 	Email          string `json:"email"`
 	HashedPassword string `json:"hashed_password"`
+	IsChirpyRed    bool   `json:"is_chirpy_red"`
 }
 
 var ErrorUserAlreadyExists = errors.New("User already exists")
@@ -28,6 +29,7 @@ func (db *DB) CreateUser(email, hashedPassword string) (User, error) {
 		ID:             id,
 		Email:          email,
 		HashedPassword: hashedPassword,
+		IsChirpyRed:    false,
 	}
 	dbStructure.Users[id] = user
 
