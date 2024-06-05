@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/oday/chirpy/internal/auth"
 	"github.com/oday/chirpy/internal/database"
 )
 
@@ -16,9 +17,19 @@ func (cfg *apiConfig) handlerWebhook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	polkaApiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Failed to find API key")
+		return
+	}
+	if polkaApiKey != cfg.polkaApiKey {
+		respondWithError(w, http.StatusUnauthorized, "Invalid API key")
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to decode parameters")
 		return
