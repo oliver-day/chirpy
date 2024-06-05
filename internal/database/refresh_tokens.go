@@ -53,3 +53,19 @@ func (db *DB) GetUserForRefreshToken(token string) (User, error) {
 
 	return user, nil
 }
+
+func (db *DB) RevokeRefreshToken(token string) error {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return err
+	}
+
+	delete(dbStructure.RefreshTokens, token)
+
+	err = db.writeDB(dbStructure)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
