@@ -92,3 +92,25 @@ func (db *DB) UpdateUser(id int, email, hashedPassword string) (User, error) {
 
 	return user, nil
 }
+
+func (db *DB) UpgradeChirpyRed(id int) (User, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return User{}, err
+	}
+
+	user, ok := dbStructure.Users[id]
+	if !ok {
+		return User{}, err
+	}
+
+	user.IsChirpyRed = true
+	dbStructure.Users[id] = user
+
+	err = db.writeDB(dbStructure)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
